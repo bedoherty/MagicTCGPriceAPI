@@ -42,10 +42,61 @@ Changelog:
 
 These examples demonstrate the proper URLs and return values for these APIs.
 
-* [Card Image](http://magictcgprices.appspot.com/api/images/imageurl.json?cardname=Emrakul,%20the%20Aeons%20Torn)
-* [TCGPlayer Prices](http://magictcgprices.appspot.com/api/tcgplayer/price.json?cardname=Emrakul,%20the%20Aeons%20Torn)
-* [Lowest Ebay Buy It Now Price](http://magictcgprices.appspot.com/api/ebay/price.json?cardname=Emrakul,%20the%20Aeons%20Torn)
-* [Channel Fireball Price](http://magictcgprices.appspot.com/api/cfb/price.json?cardname=Emrakul,%20the%20Aeons%20Torn)
+### [Card Image](http://magictcgprices.appspot.com/api/images/imageurl.json?cardname=Pillar%20of%20Flame&cardset=fnmp)
+
+URL:
+
+ ```
+ http://magictcgprices.appspot.com/api/images/imageurl.json?cardname=Pillar%20of%20Flame&cardset=fnmp
+ ```
+
+Result:
+
+ ```
+ ["http://magiccards.info/scans/en/fnmp/150.jpg"]
+ ```
+
+### [TCGPlayer Prices](http://magictcgprices.appspot.com/api/tcgplayer/price.json?cardname=Tarmogoyf&cardset=Modern%20Masters)
+
+URL:
+
+ ```
+ http://magictcgprices.appspot.com/api/tcgplayer/price.json?cardname=Tarmogoyf&cardset=Modern%20Masters
+ ```
+
+Result:
+
+ ```
+ ["$97.25", "$115.20", "$149.98"]
+ ```
+
+### [Lowest Ebay Buy It Now Price](http://magictcgprices.appspot.com/api/ebay/price.json?cardname=Restoration%20Angel&cardset=promo)
+
+URL:
+
+ ```
+ http://magictcgprices.appspot.com/api/ebay/price.json?cardname=Restoration%20Angel&cardset=promo
+ ```
+
+Result:
+
+ ```
+ ["$11.99"]
+ ```
+
+### [Channel Fireball Price](http://magictcgprices.appspot.com/api/cfb/price.json?cardname=Dark%20Confidant&setname=ravnica)
+
+URL:
+
+ ```
+ http://magictcgprices.appspot.com/api/cfb/price.json?cardname=Dark%20Confidant&setname=ravnica
+ ```
+
+Result:
+
+ ```
+ ["$59.99"]
+ ```
 
 ## Apps
 
