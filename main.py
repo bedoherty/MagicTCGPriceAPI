@@ -19,80 +19,11 @@ import os
 import jinja2
 import json
 import urllib
+from scraper import *
+from ndbmodels import *
 from google.appengine.api import memcache
-
-#
-#   Scraping Utilities
-#
-
-#
-#   Retrieves a URL to the card's image as represented by http://magiccards.info
-#
-def getCardImageURL(cardName):
-    magicInfoURL = "http://magiccards.info/query?q=" + urllib.quote(cardName)
-    htmlFile = urllib.urlopen(magicInfoURL)
-    rawHTML = htmlFile.read()
-    startURLIndex = rawHTML.find("http://magiccards.info/scans")
-    endURLIndex = rawHTML.find("\"", startURLIndex)
-    imageURL = rawHTML[startURLIndex:endURLIndex]
-    return [imageURL]
-
-#
-#   Retrieves a cards current price on Channel Fireball
-#
-def getCFBPrice(cardName):
-    cfbURL = "http://store.channelfireball.com/products/search?q=" + urllib.quote(cardName)
-    htmlFile = urllib.urlopen(cfbURL)
-    rawHTML = htmlFile.read()    
-    tempIndex = rawHTML.find("grid-item-price")
-    startPriceIndex = rawHTML.find("$", tempIndex)
-    endPriceIndex = rawHTML.find("<", startPriceIndex)
-    cfbPrice = rawHTML[startPriceIndex:endPriceIndex]
-    return [cfbPrice]
-
-#
-#   Retrieves the lowest buy it now price for a card on ebay
-#
-def getEbayPrice(cardName):
-    ebayURL = "http://www.ebay.com/sch/i.html?_sacat=0&_sop=15&LH_BIN=1&_nkw=" + urllib.quote(cardName + " mtg nm")
-    htmlFile = urllib.urlopen(ebayURL)
-    rawHTML = htmlFile.read()
-    startPriceIndex = rawHTML.find("$")
-    endPriceIndex = rawHTML.find("<", startPriceIndex)
-    lowestBIN = rawHTML[startPriceIndex:endPriceIndex]
-    return [lowestBIN]
-
-#
-#   Retrieves the low, mid, and high prices of a card as shown on http://tcgplayer.com
-#
-def getTCGPlayerPrices(cardName):
-    #   Open the TCGPlayer URL
-    tcgPlayerURL = "http://magic.tcgplayer.com/db/magic_single_card.asp?cn=" + urllib.quote(cardName)
-    htmlFile = urllib.urlopen(tcgPlayerURL)
-    rawHTML = htmlFile.read()
-
-    #   Scrape for the low price
-    tempIndex = rawHTML.find('>L:')
-    startLowIndex = rawHTML.find("$", tempIndex)
-    endLowIndex = rawHTML.find("<", startLowIndex)
-
-    lowPrice = rawHTML[startLowIndex:endLowIndex]
-
-    #   Scrape for the mid price
-    tempIndex = rawHTML.find('>M:')
-    startMidIndex = rawHTML.find("$", tempIndex)
-    endMidIndex = rawHTML.find("<", startMidIndex)
-    
-    midPrice = rawHTML[startMidIndex:endMidIndex]
-
-    #   Scrape for the high price
-    tempIndex = rawHTML.find('>H:')
-    startHighIndex = rawHTML.find("$", tempIndex)
-    endHighIndex = rawHTML.find("<", startHighIndex)
-    
-    highPrice = rawHTML[startHighIndex:endHighIndex]
-
-    return [lowPrice, midPrice, highPrice]
+from google.appengine.ext import ndb
+import logging
 
 #
 #   URL Handlers
@@ -100,40 +31,72 @@ def getTCGPlayerPrices(cardName):
 class GetImageURLHandler(webapp2.RequestHandler):
     def get(self):
         cardName = self.request.get('cardname')
-        retVal = memcache.get('Image'  + cardName)
+        cardSet = self.request.get('cardset')
+        retVal = None
+        if not cardSet:
+            retVal = memcache.get('Image '  + cardName)
+        else:
+            retVal = memcache.get('Image ' + cardName + " " + cardSet)
         if retVal is None:
-            retVal = getCardImageURL(cardName)
-            memcache.add('Image ' + cardName, retVal, 300)
+            retVal = getCardImageURL(cardName, cardSet)
+            if not cardSet:
+                memcache.add('Image '  + cardName, retVal, 300)
+            else:
+                memcache.add('Image ' + cardName + " " + cardSet, retVal, 300)
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(json.dumps(retVal))
 
 class CFBPriceCheckHandler(webapp2.RequestHandler):
     def get(self):
         cardName = self.request.get('cardname')
-        retVal = memcache.get('CFB ' + cardName)
+        cardSet = self.request.get('cardset')
+        retVal = None
+        if not cardSet:
+            retVal = memcache.get('CFB '  + cardName)
+        else:
+            retVal = memcache.get('CFB ' + cardName + " " + cardSet)
         if retVal is None:
-            retVal = getCFBPrice(cardName)
-            memcache.add('CFB ' + cardName, retVal, 300)
+            retVal = getCFBPrice(cardName, cardSet)
+            if not cardSet:
+                memcache.add('CFB '  + cardName, retVal, 300)
+            else:
+                memcache.add('CFB ' + cardName + " " + cardSet, retVal, 300)
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(json.dumps(retVal))
 
 class TCGPriceCheckHandler(webapp2.RequestHandler):
     def get(self):
         cardName = self.request.get('cardname')
-        retVal = memcache.get('TCG ' + cardName)
+        cardSet = self.request.get('cardset')
+        retVal = None
+        if not cardSet:
+            retVal = memcache.get('TCG '  + cardName)
+        else:
+            retVal = memcache.get('TCG ' + cardName + " " + cardSet)
         if retVal is None:
-            retVal = getTCGPlayerPrices(cardName)
-            memcache.add('TCG ' + cardName, retVal, 300)
+            retVal = getTCGPlayerPrices(cardName, cardSet)
+            if not cardSet:
+                memcache.add('TCG '  + cardName, retVal, 300)
+            else:
+                memcache.add('TCG ' + cardName + " " + cardSet, retVal, 300)
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(json.dumps(retVal))
 
 class EbayPriceCheckHandler(webapp2.RequestHandler):
     def get(self):
         cardName = self.request.get('cardname')
-        retVal = memcache.get('Ebay ' + cardName)
+        cardSet = self.request.get('cardset')
+        retVal = None
+        if not cardSet:
+            retVal = memcache.get('Ebay '  + cardName)
+        else:
+            retVal = memcache.get('Ebay ' + cardName + " " + cardSet)
         if retVal is None:
-            retVal = getEbayPrice(cardName)
-            memcache.add('Ebay ' + cardName, retVal, 300)
+            retVal = getEbayPrice(cardName, cardSet)
+            if not cardSet:
+                memcache.add('Ebay '  + cardName, retVal, 300)
+            else:
+                memcache.add('Ebay ' + cardName + " " + cardSet, retVal, 300)
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(json.dumps(retVal))
 

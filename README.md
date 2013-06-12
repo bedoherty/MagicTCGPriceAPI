@@ -8,6 +8,36 @@ Changelog:
 * Fixed and made TCGPlayer scraping more accurate and reliable
 * Added caching via memcache to save data and reduce load times
 
+## API Documentation
+
+### Card Images (/api/images/imageurl.json)
+
+| Parameter     | Description                                   |
+| ------------- | --------------------------------------------- |
+| cardname      | The name of the card to retrieve an image for. |
+| cardset(optional)       | The set we want to retrieve the image from, as listed on [magiccards.info](http://magiccards.info/sitemap.html)    |
+
+### TCGPlayer Prices (/api/tcgplayer/price.json)
+
+| Parameter     | Description                                   |
+| ------------- | --------------------------------------------- |
+| cardname      | The name of the card to retrieve TCGPlayer pricing on. |
+| cardset(optional)        | The set we want to retrieve TCGPlayer prices from as listed on [TCGPlayer](http://magic.tcgplayer.com/all_magic_sets.asp)    |
+
+### Lowest Ebay Buy It Now Price (/api/ebay/price.json)
+
+| Parameter     | Description                                   |
+| ------------- | --------------------------------------------- |
+| cardname      | The name of the card to retrieve Ebay pricing on. |
+| cardset(optional)        | The set we want to retrieve the Ebay price from in any format    |
+
+### Channel Fireball (/api/cfb/price.json)
+
+| Parameter     | Description                                   |
+| ------------- | --------------------------------------------- |
+| cardname      | The name of the card to retrieve Channel Fireball pricing on. |
+| cardset(optional)        | The set we want to retrieve the Channel Fireball price from in any format    |
+
 ## API Examples
 
 These examples demonstrate the proper URLs and return values for these APIs.
