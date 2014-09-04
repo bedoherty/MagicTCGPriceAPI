@@ -45,7 +45,7 @@ def getEbayPrice(cardName, cardSet):
     logging.info(ebayURL)
     htmlFile = urllib.urlopen(ebayURL)
     rawHTML = htmlFile.read()
-    startPriceIndex = rawHTML.find('span class="g-b">')
+    startPriceIndex = rawHTML.find('span  class="g-b">')
     startPriceIndex = rawHTML.find("$", startPriceIndex)
     endPriceIndex = rawHTML.find("<", startPriceIndex)
     lowestBIN = rawHTML[startPriceIndex:endPriceIndex]
